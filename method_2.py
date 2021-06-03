@@ -2,6 +2,7 @@ import os
 import json
 import random
 import numpy as np
+import pandas as pd
 import pysynth as synth_main
 import pysynth_p
 from mix import mix_files
@@ -30,6 +31,11 @@ def get_hit_mat(hit):
         hit_sum[i] += 1
     hit_sum = np.expand_dims(hit_sum,1).repeat(16,axis=1)
     return hit_mat/hit_sum
+def save_hit_mat(mat):
+    data_df = pd.DataFrame(mat)
+    writer = pd.ExcelWriter('./csv/method_2/hit.xlsx')
+    data_df.to_excel(writer,'page_1',float_format='%.5f')  #关键3，float_format 控制精度，将data_df写到hhh表格的第一页中。若多个文件，可以在page_2中写入
+    writer.save()
 def generate_hit(hit_mat):
     bar_count = 0
     hit = [0]
@@ -69,6 +75,7 @@ def generate_pitch(hit, pitch_hit_mat, last_p, pitch_mat=None, pitch=None):
     return output_pitch
 def generate_tune(pitch, hit):
     hit_mat = get_hit_mat(hit)
+    save_hit_mat(hit_mat)
     output_hit = generate_hit(hit_mat)
     pitch_hit_mat, pitch_mat = get_pitch_hit_mat(pitch, hit)
     output_pitch = generate_pitch(output_hit, pitch_hit_mat, random.choice(pitch), pitch_mat, pitch)
